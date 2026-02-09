@@ -1,0 +1,158 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Manrope', system-ui, sans-serif;
+  background-color: #0d1117;
+  color: #e8eaed;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1d23;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3a3f4b;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4a4f5b;
+}
+
+/* Code editor styles */
+.code-editor-wrapper {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Resizable panels */
+.resizer {
+  background: #3a3f4b;
+  transition: background 0.2s;
+}
+
+.resizer:hover {
+  background: #00b4d8;
+}
+
+/* Animation for loading states */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(0, 180, 216, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(0, 180, 216, 0.6);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Select styling */
+select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239aa0a6' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+/* Toast notification */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  z-index: 1000;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Grid pattern background */
+.grid-bg {
+  background-image: 
+    linear-gradient(rgba(58, 63, 75, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(58, 63, 75, 0.3) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Widget container styles for better compatibility */
+[id^="widget-"] {
+  width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+}
+
+/* KPI widget overlay support */
+.widget_kpi {
+  z-index: 10 !important;
+}
+
+.widget_kpi_title,
+.widget_kpi_text,
+.widget_kpi_text_goal {
+  text-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+/* Highcharts title fix */
+.highcharts-title,
+.highcharts-subtitle {
+  fill: #e8eaed !important;
+}
+
+.highcharts-background {
+  fill: transparent !important;
+}
+
+/* ECharts dark theme compatibility */
+[id^="widget-"] canvas {
+  background: transparent !important;
+}

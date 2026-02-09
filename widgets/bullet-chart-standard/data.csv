@@ -1,0 +1,13 @@
+Category,Segment,Actual,Target,Step,Step_index
+Metric A,Low,75,85,30,1
+Metric A,Medium,75,85,25,2
+Metric A,High,75,85,45,3
+Metric B,Low,45,60,25,1
+Metric B,Medium,45,60,30,2
+Metric B,High,45,60,45,3
+Metric C,Low,90,80,35,1
+Metric C,Medium,90,80,30,2
+Metric C,High,90,80,35,3
+Metric D,Low,55,70,20,1
+Metric D,Medium,55,70,35,2
+Metric D,High,55,70,45,3

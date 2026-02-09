@@ -1,0 +1,123 @@
+{
+  "Name": "Bullet Chart — Standard",
+  "DataRoles": [
+    {
+      "Name": "category",
+      "DisplayName": "Категория",
+      "Description": "Строковые поля (Category, Segment)",
+      "Kind": 0,
+      "Optional": false
+    },
+    {
+      "Name": "value",
+      "DisplayName": "Значение",
+      "Description": "Числовые поля (Actual, Target, Step, Step_index)",
+      "Kind": 1,
+      "Optional": false
+    }
+  ],
+  "Properties": [
+    {
+      "DisplayName": "Ориентация",
+      "PropertyName": "orientation",
+      "Value": "vertical",
+      "Type": 0
+    },
+    {
+      "DisplayName": "Показывать легенду",
+      "PropertyName": "showLegend",
+      "Value": true,
+      "Type": 2
+    },
+    {
+      "DisplayName": "Всплывающая подсказка",
+      "PropertyName": "tooltipEnabled",
+      "Value": true,
+      "Type": 2
+    },
+    {
+      "DisplayName": "Показывать подписи категорий",
+      "PropertyName": "showCategoryLabels",
+      "Value": true,
+      "Type": 2
+    },
+    {
+      "DisplayName": "Градиент сегментов (JSON)",
+      "PropertyName": "segmentColorMapJson",
+      "Value": "",
+      "Type": 0
+    },
+    {
+      "DisplayName": "Цвет Actual",
+      "PropertyName": "actualColor",
+      "Value": "#2c3e50",
+      "Type": 3
+    },
+    {
+      "DisplayName": "Цвет Target",
+      "PropertyName": "targetColor",
+      "Value": "#e74c3c",
+      "Type": 3
+    },
+    {
+      "DisplayName": "Ширина Actual, %",
+      "PropertyName": "actualBarWidthPct",
+      "Value": 25,
+      "Type": 1
+    },
+    {
+      "DisplayName": "Ширина фона, %",
+      "PropertyName": "rangeBarWidthPct",
+      "Value": 60,
+      "Type": 1
+    },
+    {
+      "DisplayName": "Толщина Target, px",
+      "PropertyName": "targetMarkerThickness",
+      "Value": 6,
+      "Type": 1
+    },
+    {
+      "DisplayName": "Длина Target, %",
+      "PropertyName": "targetMarkerLengthPct",
+      "Value": 60,
+      "Type": 1
+    },
+    {
+      "DisplayName": "Ось с нуля",
+      "PropertyName": "axisStartAtZero",
+      "Value": true,
+      "Type": 2
+    },
+    {
+      "DisplayName": "Минимум оси (Y)",
+      "PropertyName": "axisMin",
+      "Value": 0,
+      "Type": 1
+    },
+    {
+      "DisplayName": "Максимум оси (Y)",
+      "PropertyName": "axisMax",
+      "Value": 0,
+      "Type": 1
+    },
+    {
+      "DisplayName": "Запас сверху, %",
+      "PropertyName": "axisMaxPaddingPct",
+      "Value": 5,
+      "Type": 1
+    },
+    {
+      "DisplayName": "Размер шрифта",
+      "PropertyName": "fontSize",
+      "Value": 12,
+      "Type": 1
+    },
+    {
+      "DisplayName": "Выравнивание подписей",
+      "PropertyName": "categoryLabelAlign",
+      "Value": "center",
+      "Type": 0
+    }
+  ]
+}

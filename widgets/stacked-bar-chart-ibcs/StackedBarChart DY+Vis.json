@@ -1,0 +1,161 @@
+{
+  "Name": "StackedBarChart DY+Vis",
+  "Code": "(function() {\n  var container = document.getElementById(w.general.renderTo);\n  var props = w.props || {};\n  var items = w.data?.primaryData?.items || [];\n\n  // === Default props ===\n  var orientation = props.orientation || 'horizontal';\n  var normalizationMode = props.normalizationMode || 'absolute';\n  var showLegend = props.showLegend !== false;\n  var tooltipEnabled = props.tooltipEnabled !== false;\n  var showSegmentLabels = props.showSegmentLabels !== false;\n  var showTotalLabel = props.showTotalLabel !== false;\n  var minSegmentLabelPct = props.minSegmentLabelPct || 5;\n  var axisStartAtZero = props.axisStartAtZero !== false;\n  var axisMax = props.axisMax || 0;\n  var fontSize = props.fontSize || 12;\n  var segmentLabelColor = props.segmentLabelColor || '#ffffff';\n  var totalLabelColor = props.totalLabelColor || '#333333';\n  var isNormalized = normalizationMode === 'normalized';\n  var isHorizontal = orientation === 'horizontal';\n\n  // Axis styling props\n  var xAxisLabelColor = props.xAxisLabelColor || '#333333';\n  var yAxisLabelColor = props.yAxisLabelColor || '#333333';\n  var showXAxisLine = props.showXAxisLine !== false;\n  var showYAxisLine = props.showYAxisLine !== false;\n  var showXAxisLabels = props.showXAxisLabels !== false;\n  var showYAxisLabels = props.showYAxisLabels !== false;\n\n  // Mark lines\n  var xAxisMarkLine = props.xAxisMarkLine || 0;\n  var xAxisMarkLineColor = props.xAxisMarkLineColor || '#e74c3c';\n  var yAxisMarkLine = props.yAxisMarkLine || 0;\n  var yAxisMarkLineColor = props.yAxisMarkLineColor || '#e74c3c';\n\n  // === Parse segment color map ===\n  var segmentColorMap = {};\n  if (props.segmentColorMapJson) {\n    try {\n      segmentColorMap = JSON.parse(props.segmentColorMapJson);\n    } catch (e) {\n      console.warn('Invalid segmentColorMapJson:', e);\n    }\n  }\n\n  // === IBCS monochrome gray palette (default) ===\n  var defaultSegmentColors = [\n    '#404040',  // Dark gray\n    '#737373',  // Medium gray\n    '#A6A6A6',  // Light gray\n    '#D9D9D9',  // Very light gray\n    '#595959',  // Additional shades\n    '#8C8C8C',\n    '#BFBFBF'\n  ];\n\n  if (!items.length) {\n    container.innerHTML = '<div style=\"display:flex;align-items:center;justify-content:center;height:100%;color:#999;\">Нет данных</div>';\n    return;\n  }\n\n  // === Data structure ===\n  // items[i].keys = [Category, Segment]\n  // items[i].values = [Value]\n\n  // Group data by Category and collect segments\n  var categoriesMap = {};\n  var segmentsSet = new Set();\n  var segmentsOrder = [];\n\n  items.forEach(function(item) {\n    var category = item.keys[0];\n    var segment = item.keys[1];\n    var value = item.values[0] || 0;\n\n    if (!segmentsSet.has(segment)) {\n      segmentsSet.add(segment);\n      segmentsOrder.push(segment);\n    }\n\n    if (!categoriesMap[category]) {\n      categoriesMap[category] = {\n        segments: {},\n        total: 0\n      };\n    }\n\n    categoriesMap[category].segments[segment] = value;\n    categoriesMap[category].total += value;\n  });\n\n  var categories = Object.keys(categoriesMap);\n  var segments = segmentsOrder;\n\n  // Calculate max total for axis scaling\n  var maxTotal = 0;\n  categories.forEach(function(cat) {\n    maxTotal = Math.max(maxTotal, categoriesMap[cat].total);\n  });\n\n  // === Build ECharts series ===\n  var series = [];\n  var lastSegmentIndex = segments.length - 1;\n\n  segments.forEach(function(segName, segIdx) {\n    var segColor = segmentColorMap[segName] || defaultSegmentColors[segIdx % defaultSegmentColors.length];\n    var isLastSegment = (segIdx === lastSegmentIndex);\n\n    var segmentData = categories.map(function(cat) {\n      var catData = categoriesMap[cat];\n      var rawValue = catData.segments[segName] || 0;\n      var total = catData.total;\n      var pct = total > 0 ? (rawValue / total) * 100 : 0;\n\n      // For normalized mode, use percentage for bar width but store raw value\n      var displayValue = isNormalized ? pct : rawValue;\n\n      return {\n        value: displayValue,\n        rawValue: rawValue,\n        pct: pct,\n        total: total,\n        segment: segName,\n        category: cat,\n        isLastSegment: isLastSegment\n      };\n    });\n\n    // Build markLine config for this series (only add to first series)\n    var markLineConfig = null;\n    if (segIdx === 0) {\n      var markLineData = [];\n      \n      // For horizontal orientation: X axis is value axis, Y axis is category axis\n      // For vertical orientation: X axis is category axis, Y axis is value axis\n      if (isHorizontal) {\n        // X axis mark line (on value axis)\n        if (xAxisMarkLine > 0) {\n          markLineData.push({\n            xAxis: xAxisMarkLine,\n            lineStyle: { color: xAxisMarkLineColor, width: 2, type: 'solid' },\n            label: { show: true, formatter: '{c}', color: xAxisMarkLineColor }\n          });\n        }\n      } else {\n        // Y axis mark line (on value axis)\n        if (yAxisMarkLine > 0) {\n          markLineData.push({\n            yAxis: yAxisMarkLine,\n            lineStyle: { color: yAxisMarkLineColor, width: 2, type: 'solid' },\n            label: { show: true, formatter: '{c}', color: yAxisMarkLineColor }\n          });\n        }\n      }\n      \n      if (markLineData.length > 0) {\n        markLineConfig = {\n          symbol: 'none',\n          data: markLineData\n        };\n      }\n    }\n\n    var seriesItem = {\n      name: segName,\n      type: 'bar',\n      stack: 'total',\n      barWidth: '60%',\n      itemStyle: {\n        color: segColor,\n        borderColor: '#fff',\n        borderWidth: 0.5\n      },\n      emphasis: {\n        itemStyle: {\n          color: segColor,\n          shadowBlur: 5,\n          shadowColor: 'rgba(0,0,0,0.3)'\n        }\n      },\n      label: {\n        show: showSegmentLabels,\n        position: 'inside',\n        formatter: function(params) {\n          var data = params.data;\n          var pct = data.pct;\n          // Hide label if segment is too small\n          if (pct < minSegmentLabelPct) {\n            return '';\n          }\n          // Show raw value (even in normalized mode per spec)\n          return data.rawValue;\n        },\n        color: segmentLabelColor,\n        fontSize: fontSize,\n        fontWeight: 500\n      },\n      data: segmentData\n    };\n\n    if (markLineConfig) {\n      seriesItem.markLine = markLineConfig;\n    }\n\n    series.push(seriesItem);\n  });\n\n  // === Axis configuration ===\n  var calculatedMax = isNormalized ? 100 : (axisMax > 0 ? axisMax : maxTotal * 1.15);\n  var calculatedMin = axisStartAtZero ? 0 : undefined;\n\n  // Determine visibility for each axis based on orientation\n  var showCategoryAxisLine = isHorizontal ? showYAxisLine : showXAxisLine;\n  var showCategoryAxisLabels = isHorizontal ? showYAxisLabels : showXAxisLabels;\n  var showValueAxisLine = isHorizontal ? showXAxisLine : showYAxisLine;\n  var showValueAxisLabels = isHorizontal ? showXAxisLabels : showYAxisLabels;\n\n  var categoryAxisConfig = {\n    type: 'category',\n    data: categories,\n    axisLine: {\n      show: showCategoryAxisLine,\n      lineStyle: { color: '#333', width: 1 }\n    },\n    axisLabel: {\n      show: showCategoryAxisLabels,\n      color: isHorizontal ? yAxisLabelColor : xAxisLabelColor,\n      fontSize: fontSize,\n      fontWeight: 500,\n      interval: 0\n    },\n    axisTick: { show: showCategoryAxisLine },\n    splitLine: { show: false }\n  };\n\n  var valueAxisConfig = {\n    type: 'value',\n    min: calculatedMin,\n    max: calculatedMax,\n    axisLine: {\n      show: isNormalized ? false : showValueAxisLine,\n      lineStyle: { color: '#333', width: 1 }\n    },\n    axisLabel: {\n      show: isNormalized ? false : showValueAxisLabels,\n      color: isHorizontal ? xAxisLabelColor : yAxisLabelColor,\n      fontSize: fontSize,\n      formatter: function(value) {\n        return value;\n      }\n    },\n    splitLine: {\n      show: !isNormalized && showValueAxisLine,\n      lineStyle: {\n        color: 'rgba(0,0,0,0.1)',\n        type: 'solid'\n      }\n    },\n    axisTick: { show: !isNormalized && showValueAxisLine }\n  };\n\n  // === Chart options ===\n  var existingChart = echarts.getInstanceByDom(container);\n  if (existingChart) existingChart.dispose();\n\n  var chart = echarts.init(container);\n\n  // Calculate padding for total labels\n  var rightPadding = isHorizontal ? (showTotalLabel ? '15%' : '8%') : '8%';\n  var topPadding = !isHorizontal ? (showTotalLabel ? '20%' : '10%') : (showLegend ? 50 : 25);\n\n  var option = {\n    backgroundColor: 'transparent',\n    tooltip: tooltipEnabled ? {\n      trigger: 'item',\n      backgroundColor: 'rgba(255, 255, 255, 0.98)',\n      borderColor: 'rgba(0, 0, 0, 0.1)',\n      borderWidth: 1,\n      textStyle: {\n        color: '#333',\n        fontSize: fontSize\n      },\n      formatter: function(params) {\n        if (params.seriesName === '_total') return null;\n\n        var data = params.data;\n        var cat = data.category;\n        var seg = data.segment;\n        var rawValue = data.rawValue;\n        var pct = data.pct;\n        var total = data.total;\n        var segColor = params.color;\n\n        var html = '<div style=\"font-weight:600;margin-bottom:8px;font-size:' + (fontSize + 2) + 'px;color:#333;border-bottom:1px solid #eee;padding-bottom:6px;\">' + cat + '</div>';\n\n        html += '<div style=\"display:flex;align-items:center;margin:6px 0;\">' +\n          '<span style=\"display:inline-block;width:12px;height:12px;background:' + segColor + ';margin-right:8px;border-radius:2px;\"></span>' +\n          '<span style=\"color:#666;font-weight:500;\">' + seg + '</span>' +\n          '</div>';\n\n        html += '<div style=\"margin-left:20px;color:#333;\">';\n        html += '<div style=\"margin:4px 0;\">Значение: <strong>' + rawValue + '</strong></div>';\n        html += '<div style=\"margin:4px 0;\">Доля: <strong>' + pct.toFixed(1) + '%</strong></div>';\n        html += '</div>';\n\n        html += '<div style=\"margin-top:8px;padding-top:6px;border-top:1px solid #eee;color:#666;\">';\n        html += 'Итого по ' + cat + ': <strong style=\"color:#333;\">' + total + '</strong>';\n        html += '</div>';\n\n        return html;\n      }\n    } : { show: false },\n    legend: showLegend ? {\n      data: segments,\n      textStyle: {\n        color: '#333',\n        fontSize: fontSize\n      },\n      top: 5,\n      itemGap: 20,\n      itemWidth: 18,\n      itemHeight: 12,\n      icon: 'rect'\n    } : { show: false },\n    grid: {\n      left: isHorizontal ? '8%' : '12%',\n      right: rightPadding,\n      top: topPadding,\n      bottom: isNormalized ? '8%' : '12%',\n      containLabel: true\n    },\n    xAxis: isHorizontal ? valueAxisConfig : categoryAxisConfig,\n    yAxis: isHorizontal ? categoryAxisConfig : valueAxisConfig,\n    series: series\n  };\n\n  // Reverse category axis for horizontal orientation (IBCS convention: first category at top)\n  if (isHorizontal) {\n    option.yAxis.inverse = true;\n  }\n\n  chart.setOption(option);\n\n  // === Add total labels using graphic elements (more reliable positioning) ===\n  if (showTotalLabel) {\n    setTimeout(function() {\n      var graphicElements = [];\n      \n      categories.forEach(function(cat, catIdx) {\n        var total = categoriesMap[cat].total;\n        \n        if (isHorizontal) {\n          // For horizontal bars, find the end position of the stacked bar\n          var yValue = chart.convertToPixel({ yAxisIndex: 0 }, cat);\n          var xValue = isNormalized \n            ? chart.convertToPixel({ xAxisIndex: 0 }, 100)\n            : chart.convertToPixel({ xAxisIndex: 0 }, total);\n          \n          graphicElements.push({\n            type: 'text',\n            left: xValue + 8,\n            top: yValue - fontSize / 2,\n            style: {\n              text: String(total),\n              fill: totalLabelColor,\n              fontSize: fontSize,\n              fontWeight: 600\n            }\n          });\n        } else {\n          // For vertical bars\n          var xValue = chart.convertToPixel({ xAxisIndex: 0 }, cat);\n          var yValue = isNormalized\n            ? chart.convertToPixel({ yAxisIndex: 0 }, 100)\n            : chart.convertToPixel({ yAxisIndex: 0 }, total);\n          \n          graphicElements.push({\n            type: 'text',\n            left: xValue - fontSize,\n            top: yValue - fontSize - 8,\n            style: {\n              text: String(total),\n              fill: totalLabelColor,\n              fontSize: fontSize,\n              fontWeight: 600,\n              textAlign: 'center'\n            }\n          });\n        }\n      });\n      \n      chart.setOption({\n        graphic: graphicElements\n      });\n    }, 100);\n  }\n\n  // === ResizeObserver for responsiveness ===\n  var resizeObserver = new ResizeObserver(function() {\n    chart.resize();\n    \n    // Re-render total labels on resize\n    if (showTotalLabel) {\n      setTimeout(function() {\n        var graphicElements = [];\n        \n        categories.forEach(function(cat, catIdx) {\n          var total = categoriesMap[cat].total;\n          \n          if (isHorizontal) {\n            var yValue = chart.convertToPixel({ yAxisIndex: 0 }, cat);\n            var xValue = isNormalized \n              ? chart.convertToPixel({ xAxisIndex: 0 }, 100)\n              : chart.convertToPixel({ xAxisIndex: 0 }, total);\n            \n            graphicElements.push({\n              type: 'text',\n              left: xValue + 8,\n              top: yValue - fontSize / 2,\n              style: {\n                text: String(total),\n                fill: totalLabelColor,\n                fontSize: fontSize,\n                fontWeight: 600\n              }\n            });\n          } else {\n            var xValue = chart.convertToPixel({ xAxisIndex: 0 }, cat);\n            var yValue = isNormalized\n              ? chart.convertToPixel({ yAxisIndex: 0 }, 100)\n              : chart.convertToPixel({ yAxisIndex: 0 }, total);\n            \n            graphicElements.push({\n              type: 'text',\n              left: xValue - fontSize,\n              top: yValue - fontSize - 8,\n              style: {\n                text: String(total),\n                fill: totalLabelColor,\n                fontSize: fontSize,\n                fontWeight: 600,\n                textAlign: 'center'\n              }\n            });\n          }\n        });\n        \n        chart.setOption({\n          graphic: graphicElements\n        });\n      }, 50);\n    }\n  });\n  resizeObserver.observe(container);\n})();\n",
+  "DataRoles": [
+    {
+      "Name": "category",
+      "DisplayName": "Категория",
+      "Description": "Строковые поля (Category, Stack Segment)",
+      "Kind": 0,
+      "Optional": false
+    },
+    {
+      "Name": "value",
+      "DisplayName": "Значение",
+      "Description": "Числовое поле (Value)",
+      "Kind": 1,
+      "Optional": false
+    }
+  ],
+  "Properties": [
+    {
+      "DisplayName": "Ориентация",
+      "PropertyName": "orientation",
+      "Value": "horizontal",
+      "Type": 0
+    },
+    {
+      "DisplayName": "Режим нормирования",
+      "PropertyName": "normalizationMode",
+      "Value": "absolute",
+      "Type": 0
+    },
+    {
+      "DisplayName": "Показывать легенду",
+      "PropertyName": "showLegend",
+      "Value": true,
+      "Type": 2
+    },
+    {
+      "DisplayName": "Всплывающая подсказка",
+      "PropertyName": "tooltipEnabled",
+      "Value": true,
+      "Type": 2
+    },
+    {
+      "DisplayName": "Цвета сегментов (JSON)",
+      "PropertyName": "segmentColorMapJson",
+      "Value": "",
+      "Type": 0
+    },
+    {
+      "DisplayName": "Подписи сегментов",
+      "PropertyName": "showSegmentLabels",
+      "Value": true,
+      "Type": 2
+    },
+    {
+      "DisplayName": "Цвет подписей сегментов",
+      "PropertyName": "segmentLabelColor",
+      "Value": "#ffffff",
+      "Type": 3
+    },
+    {
+      "DisplayName": "Итоговая сумма",
+      "PropertyName": "showTotalLabel",
+      "Value": true,
+      "Type": 2
+    },
+    {
+      "DisplayName": "Цвет итоговой суммы",
+      "PropertyName": "totalLabelColor",
+      "Value": "#333333",
+      "Type": 3
+    },
+    {
+      "DisplayName": "Мин. % для подписи",
+      "PropertyName": "minSegmentLabelPct",
+      "Value": 5,
+      "Type": 1
+    },
+    {
+      "DisplayName": "Ось с нуля",
+      "PropertyName": "axisStartAtZero",
+      "Value": true,
+      "Type": 2
+    },
+    {
+      "DisplayName": "Максимум оси (0=авто)",
+      "PropertyName": "axisMax",
+      "Value": 0,
+      "Type": 1
+    },
+    {
+      "DisplayName": "Размер шрифта",
+      "PropertyName": "fontSize",
+      "Value": 12,
+      "Type": 1
+    },
+    {
+      "DisplayName": "Цвет текста оси X",
+      "PropertyName": "xAxisLabelColor",
+      "Value": "#333333",
+      "Type": 3
+    },
+    {
+      "DisplayName": "Цвет текста оси Y",
+      "PropertyName": "yAxisLabelColor",
+      "Value": "#333333",
+      "Type": 3
+    },
+    {
+      "DisplayName": "Показать линию оси X",
+      "PropertyName": "showXAxisLine",
+      "Value": true,
+      "Type": 2
+    },
+    {
+      "DisplayName": "Показать линию оси Y",
+      "PropertyName": "showYAxisLine",
+      "Value": true,
+      "Type": 2
+    },
+    {
+      "DisplayName": "Показать подписи оси X",
+      "PropertyName": "showXAxisLabels",
+      "Value": true,
+      "Type": 2
+    },
+    {
+      "DisplayName": "Показать подписи оси Y",
+      "PropertyName": "showYAxisLabels",
+      "Value": true,
+      "Type": 2
+    },
+    {
+      "DisplayName": "Фикс. линия ось X (0=нет)",
+      "PropertyName": "xAxisMarkLine",
+      "Value": 0,
+      "Type": 1
+    },
+    {
+      "DisplayName": "Цвет фикс. линии оси X",
+      "PropertyName": "xAxisMarkLineColor",
+      "Value": "#e74c3c",
+      "Type": 3
+    },
+    {
+      "DisplayName": "Фикс. линия ось Y (0=нет)",
+      "PropertyName": "yAxisMarkLine",
+      "Value": 0,
+      "Type": 1
+    },
+    {
+      "DisplayName": "Цвет фикс. линии оси Y",
+      "PropertyName": "yAxisMarkLineColor",
+      "Value": "#e74c3c",
+      "Type": 3
+    }
+  ],
+  "PropertiesJson": ""
+}

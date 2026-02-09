@@ -1,0 +1,159 @@
+{
+  "Name": "StackedBarChart DY+Vis",
+  "DataRoles": [
+    {
+      "Name": "category",
+      "DisplayName": "Категория",
+      "Description": "Строковые поля (Category, Stack Segment)",
+      "Kind": 0,
+      "Optional": false
+    },
+    {
+      "Name": "value",
+      "DisplayName": "Значение",
+      "Description": "Числовое поле (Value)",
+      "Kind": 1,
+      "Optional": false
+    }
+  ],
+  "Properties": [
+    {
+      "DisplayName": "Ориентация",
+      "PropertyName": "orientation",
+      "Value": "horizontal",
+      "Type": 0
+    },
+    {
+      "DisplayName": "Режим нормирования",
+      "PropertyName": "normalizationMode",
+      "Value": "absolute",
+      "Type": 0
+    },
+    {
+      "DisplayName": "Показывать легенду",
+      "PropertyName": "showLegend",
+      "Value": true,
+      "Type": 2
+    },
+    {
+      "DisplayName": "Всплывающая подсказка",
+      "PropertyName": "tooltipEnabled",
+      "Value": true,
+      "Type": 2
+    },
+    {
+      "DisplayName": "Цвета сегментов (JSON)",
+      "PropertyName": "segmentColorMapJson",
+      "Value": "",
+      "Type": 0
+    },
+    {
+      "DisplayName": "Подписи сегментов",
+      "PropertyName": "showSegmentLabels",
+      "Value": true,
+      "Type": 2
+    },
+    {
+      "DisplayName": "Цвет подписей сегментов",
+      "PropertyName": "segmentLabelColor",
+      "Value": "#ffffff",
+      "Type": 3
+    },
+    {
+      "DisplayName": "Итоговая сумма",
+      "PropertyName": "showTotalLabel",
+      "Value": true,
+      "Type": 2
+    },
+    {
+      "DisplayName": "Цвет итоговой суммы",
+      "PropertyName": "totalLabelColor",
+      "Value": "#333333",
+      "Type": 3
+    },
+    {
+      "DisplayName": "Мин. % для подписи",
+      "PropertyName": "minSegmentLabelPct",
+      "Value": 5,
+      "Type": 1
+    },
+    {
+      "DisplayName": "Ось с нуля",
+      "PropertyName": "axisStartAtZero",
+      "Value": true,
+      "Type": 2
+    },
+    {
+      "DisplayName": "Максимум оси (0=авто)",
+      "PropertyName": "axisMax",
+      "Value": 0,
+      "Type": 1
+    },
+    {
+      "DisplayName": "Размер шрифта",
+      "PropertyName": "fontSize",
+      "Value": 12,
+      "Type": 1
+    },
+    {
+      "DisplayName": "Цвет текста оси X",
+      "PropertyName": "xAxisLabelColor",
+      "Value": "#333333",
+      "Type": 3
+    },
+    {
+      "DisplayName": "Цвет текста оси Y",
+      "PropertyName": "yAxisLabelColor",
+      "Value": "#333333",
+      "Type": 3
+    },
+    {
+      "DisplayName": "Показать линию оси X",
+      "PropertyName": "showXAxisLine",
+      "Value": true,
+      "Type": 2
+    },
+    {
+      "DisplayName": "Показать линию оси Y",
+      "PropertyName": "showYAxisLine",
+      "Value": true,
+      "Type": 2
+    },
+    {
+      "DisplayName": "Показать подписи оси X",
+      "PropertyName": "showXAxisLabels",
+      "Value": true,
+      "Type": 2
+    },
+    {
+      "DisplayName": "Показать подписи оси Y",
+      "PropertyName": "showYAxisLabels",
+      "Value": true,
+      "Type": 2
+    },
+    {
+      "DisplayName": "Фикс. линия ось X (0=нет)",
+      "PropertyName": "xAxisMarkLine",
+      "Value": 0,
+      "Type": 1
+    },
+    {
+      "DisplayName": "Цвет фикс. линии оси X",
+      "PropertyName": "xAxisMarkLineColor",
+      "Value": "#e74c3c",
+      "Type": 3
+    },
+    {
+      "DisplayName": "Фикс. линия ось Y (0=нет)",
+      "PropertyName": "yAxisMarkLine",
+      "Value": 0,
+      "Type": 1
+    },
+    {
+      "DisplayName": "Цвет фикс. линии оси Y",
+      "PropertyName": "yAxisMarkLineColor",
+      "Value": "#e74c3c",
+      "Type": 3
+    }
+  ]
+}
