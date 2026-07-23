@@ -1,0 +1,21 @@
+version: 6
+jobs:
+- name: Pull from GitHub
+  steps:
+  - !PullRepository
+    name: pull
+    remoteUrl: https://github.com/FatDataProduct/visiology-widget-simulator.git
+    userName: x-access-token
+    passwordSecret: github-access-token
+    syncToChildProject: false
+    refs: refs/heads/* refs/tags/*
+    withLfs: false
+    force: false
+    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+  triggers:
+  - !ScheduleTrigger
+    cronExpression: 0 0 */4 * * ?
+  retryCondition: never
+  maxRetries: 3
+  retryDelay: 30
+  timeout: 3600
