@@ -12,8 +12,26 @@ jobs:
     withLfs: false
     force: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
-  # Cron снят: OneDev больше не зеркалит GitHub сам.
-  # Job остаётся для ручного запуска Pull from GitHub на default-ветке.
+  # Без cron: направление зеркала — OneDev → GitHub (job ниже).
+  # Pull остаётся для ручного GH → OneDev на default-ветке.
+  retryCondition: never
+  maxRetries: 3
+  retryDelay: 30
+  timeout: 3600
+- name: Push to GitHub
+  steps:
+  - !PushRepository
+    name: push
+    remoteUrl: https://github.com/FatDataProduct/visiology-widget-simulator.git
+    userName: x-access-token
+    passwordSecret: github-access-token
+    force: false
+    condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+  triggers:
+  - !BranchUpdateTrigger
+    branches: '*'
+  - !TagCreateTrigger
+    tags: '*'
   retryCondition: never
   maxRetries: 3
   retryDelay: 30
