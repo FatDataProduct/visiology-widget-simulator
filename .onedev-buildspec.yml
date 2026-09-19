@@ -12,9 +12,8 @@ jobs:
     withLfs: false
     force: false
     condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
-  triggers:
-  - !ScheduleTrigger
-    cronExpression: 0 0 */4 * * ?
+  # Cron снят: OneDev больше не зеркалит GitHub сам.
+  # Job остаётся для ручного запуска Pull from GitHub на default-ветке.
   retryCondition: never
   maxRetries: 3
   retryDelay: 30
